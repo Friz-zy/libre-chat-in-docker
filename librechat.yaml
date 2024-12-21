@@ -1,0 +1,352 @@
+# For more information, see the Configuration Guide:
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+# https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/config
+
+# Configuration version (required)
+version: 1.1.5
+
+# Cache settings: Set to true to enable caching
+cache: true
+
+# Example Registration Object Structure (optional)
+registration:
+  socialLogins: ['github', 'google', 'discord', 'openid', 'facebook']
+  # allowedDomains:
+  # - "gmail.com"
+
+# speech:
+#   tts:
+#     openai:
+#       url: ''
+#       apiKey: '${TTS_API_KEY}'
+#       model: ''
+#       voices: ['']
+
+#  
+#   stt:
+#     openai:
+#       url: ''
+#       apiKey: '${STT_API_KEY}'
+#       model: ''
+
+# rateLimits:
+#   fileUploads:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # Rate limit window for file uploads per IP
+#     userMax: 50
+#     userWindowInMinutes: 60  # Rate limit window for file uploads per user
+#   conversationsImport:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # Rate limit window for conversation imports per IP
+#     userMax: 50
+#     userWindowInMinutes: 60  # Rate limit window for conversation imports per user
+
+# Definition of custom endpoints
+endpoints:
+  # assistants:
+  #   disableBuilder: false # Disable Assistants Builder Interface by setting to `true`
+  #   pollIntervalMs: 3000  # Polling interval for checking assistant updates
+  #   timeoutMs: 180000  # Timeout for assistant operations
+  #   # Should only be one or the other, either `supportedIds` or `excludedIds`
+  #   supportedIds: ["asst_supportedAssistantId1", "asst_supportedAssistantId2"]
+  #   # excludedIds: ["asst_excludedAssistantId"]
+  #   Only show assistants that the user created or that were created externally (e.g. in Assistants playground).
+  #   # privateAssistants: false # Does not work with `supportedIds` or `excludedIds`
+  #   # (optional) Models that support retrieval, will default to latest known OpenAI models that support the feature
+  #   retrievalModels: ["gpt-4-turbo-preview"]
+  #   # (optional) Assistant Capabilities available to all users. Omit the ones you wish to exclude. Defaults to list below.
+  #   capabilities: ["code_interpreter", "retrieval", "actions", "tools", "image_vision"]
+  custom:
+    # https://www.librechat.ai/docs/configuration/librechat_yaml/ai_endpoints/ollama
+    - name: "Ollama"
+      apiKey: "ollama"
+      # use 'host.docker.internal' instead of localhost if running LibreChat in a docker container
+      baseURL: "http://ollama:11434/v1/chat/completions" 
+      models:
+        default: [
+          "llama3", # require custom stop parameters, see docs ^
+          "llama2",
+          "mistral",
+          "codellama",
+          "dolphin-mixtral",
+          "mistral-openorca"
+          ]
+        # fetching list of models is supported but the `name` field must start
+        # with `ollama` (case-insensitive), as it does in this example.
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      summarize: false
+      summaryModel: "current_model"
+      forcePrompt: false
+      modelDisplayLabel: "Ollama"
+
+    - name: 'HuggingFace'
+      apiKey: '${HUGGINGFACE_TOKEN}'
+      baseURL: 'https://api-inference.huggingface.co/v1'
+      models:
+        default: [
+          "codellama/CodeLlama-34b-Instruct-hf",
+          "google/gemma-1.1-2b-it",
+          "google/gemma-1.1-7b-it",
+          "HuggingFaceH4/starchat2-15b-v0.1",
+          "HuggingFaceH4/zephyr-7b-beta",
+          "meta-llama/Meta-Llama-3-8B-Instruct",
+          "microsoft/Phi-3-mini-4k-instruct",
+          "mistralai/Mistral-7B-Instruct-v0.1",
+          "mistralai/Mistral-7B-Instruct-v0.2",
+          "mistralai/Mixtral-8x7B-Instruct-v0.1",
+          "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+        ]
+        fetch: true
+      titleConvo: true
+      titleModel: "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+      dropParams: ["top_p"]
+      modelDisplayLabel: "HuggingFace"
+
+    # Groq Example
+    - name: 'groq'
+      apiKey: '${GROQ_API_KEY}'
+      baseURL: 'https://api.groq.com/openai/v1/'
+      models:
+        default:
+          [
+            'llama3-70b-8192',
+            'llama3-8b-8192',
+            'llama2-70b-4096',
+            'mixtral-8x7b-32768',
+            'gemma-7b-it',
+          ]
+        fetch: true
+      titleConvo: true
+      titleModel: 'mixtral-8x7b-32768'
+      modelDisplayLabel: 'groq'
+
+    # Mistral AI Example
+    - name: 'Mistral' # Unique name for the endpoint
+      # For `apiKey` and `baseURL`, you can use environment variables that you define.
+      # recommended environment variables:
+      apiKey: '${MISTRAL_API_KEY}'
+      baseURL: 'https://api.mistral.ai/v1'
+
+      # Models configuration
+      models:
+        # List of default models to use. At least one value is required.
+        default: ['mistral-tiny', 'mistral-small', 'mistral-medium']
+        # Fetch option: Set to true to fetch models from API.
+        fetch: true # Defaults to false.
+
+      # Optional configurations
+
+      # Title Conversation setting
+      titleConvo: true # Set to true to enable title conversation
+
+      # Title Method: Choose between "completion" or "functions".
+      # titleMethod: "completion"  # Defaults to "completion" if omitted.
+
+      # Title Model: Specify the model to use for titles.
+      titleModel: 'mistral-tiny' # Defaults to "gpt-3.5-turbo" if omitted.
+
+      # Summarize setting: Set to true to enable summarization.
+      # summarize: false
+
+      # Summary Model: Specify the model to use if summarization is enabled.
+      # summaryModel: "mistral-tiny"  # Defaults to "gpt-3.5-turbo" if omitted.
+
+      # Force Prompt setting: If true, sends a `prompt` parameter instead of `messages`.
+      # forcePrompt: false
+
+      # The label displayed for the AI model in messages.
+      modelDisplayLabel: 'Mistral' # Default is "AI" when not set.
+
+      # Add additional parameters to the request. Default params will be overwritten.
+      # addParams:
+      # safe_prompt: true # This field is specific to Mistral AI: https://docs.mistral.ai/api/
+
+      # Drop Default params parameters from the request. See default params in guide linked below.
+      # NOTE: For Mistral, it is necessary to drop the following parameters or you will encounter a 422 Error:
+      dropParams: ['stop', 'user', 'frequency_penalty', 'presence_penalty']
+
+    # OpenRouter Example
+    - name: 'OpenRouter'
+      # For `apiKey` and `baseURL`, you can use environment variables that you define.
+      # recommended environment variables:
+      # Known issue: you should not use `OPENROUTER_API_KEY` as it will then override the `openAI` endpoint to use OpenRouter as well.
+      apiKey: '${OPENROUTER_KEY}'
+      baseURL: 'https://openrouter.ai/api/v1'
+      models:
+        default: ['meta-llama/llama-3-70b-instruct']
+        fetch: true
+      titleConvo: true
+      titleModel: 'meta-llama/llama-3-70b-instruct'
+      # Recommended: Drop the stop parameter from the request as Openrouter models use a variety of stop tokens.
+      dropParams: ['stop']
+      modelDisplayLabel: 'OpenRouter'
+      
+    # Portkey AI Example
+    - name: "Portkey"
+      apiKey: "dummy"  
+      baseURL: 'https://api.portkey.ai/v1'
+      headers:
+          x-portkey-api-key: '${PORTKEY_API_KEY}'
+          x-portkey-virtual-key: '${PORTKEY_OPENAI_VIRTUAL_KEY}'
+      models:
+          default: ['gpt-4o-mini', 'gpt-4o', 'chatgpt-4o-latest']
+          fetch: true
+      titleConvo: true
+      titleModel: 'current_model'
+      summarize: false
+      summaryModel: 'current_model'
+      forcePrompt: false
+      modelDisplayLabel: 'Portkey'
+      iconURL: https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/rjqy7ghvjoiu4cd1xjbf
+
+# https://modelcontextprotocol.io/introduction
+# https://github.com/modelcontextprotocol/servers
+# https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/mcp_servers
+mcpServers:
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/aws-kb-retrieval-server
+  # aws-kb-retrieval:
+  #   type: stdio
+  #   command: npx
+  #   args:
+  #     - -y
+  #     - "@modelcontextprotocol/server-aws-kb-retrieval"
+  #   env:
+  #     AWS_ACCESS_KEY_ID: "YOUR_ACCESS_KEY_HERE"
+  #     AWS_SECRET_ACCESS_KEY: "YOUR_SECRET_ACCESS_KEY_HERE"
+  #     AWS_REGION: "YOUR_AWS_REGION_HERE"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search
+#  brave-search:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-brave-search
+#    args: []
+#    env:
+#      BRAVE_API_KEY: "YOUR_API_KEY_HERE"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/everart
+#  everart:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-everart
+#    args: []
+#    env:
+#      EVERART_API_KEY: "YOUR_API_KEY_HERE"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
+  fetch:
+    type: stdio
+    command: uvx
+    args:
+      - mcp-server-fetch
+      - --ignore-robots-txt
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
+  filesystem:
+    type: stdio
+    command: /usr/local/bin/mcp-server-filesystem
+    args:
+      - /shared
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/git
+  git:
+    type: stdio
+    command: uvx
+    args:
+      - mcp-server-git
+      #- --repository
+      #- /shared/git
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/github
+#  github:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-github
+#    args: []
+#    env:
+#      GITHUB_PERSONAL_ACCESS_TOKEN: "<YOUR_TOKEN>"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/gitlab
+#  gitlab:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-gitlab
+#    args: []
+#    env:
+#      GITLAB_PERSONAL_ACCESS_TOKEN: "<YOUR_TOKEN>"
+#      GITLAB_API_URL: "https://gitlab.com/api/v4"
+  # https://github.com/modelcontextprotocol/servers/blob/main/src/gdrive
+  # require .gdrive-server-credentials.json
+#  gdrive:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-gdrive
+#    args: []
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/google-maps
+#  google-maps:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-google-maps
+#    args: []
+#    env:
+#      GOOGLE_MAPS_API_KEY: "<YOUR_API_KEY>"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/memory
+  memory:
+    type: stdio
+    command: /usr/local/bin/mcp-server-memory
+    args: []
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/postgres
+#  postgres:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-postgres
+#    args:
+#      - -y
+#      - "@modelcontextprotocol/server-postgres"
+#      - postgresql://localhost/mydb
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer
+  puppeteer:
+    type: stdio
+    command: /usr/local/bin/mcp-server-puppeteer
+    args: []
+    env:
+      DOCKER_CONTAINER: "true"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/sentry
+#  sentry:
+#    type: stdio
+#    command: uvx
+#    args:
+#      - mcp-server-sentry
+#      - --auth-token
+#      - "YOUR_SENTRY_TOKEN"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
+  sequential-thinking:
+    type: stdio
+    command: /usr/local/bin/mcp-server-sequential-thinking
+    args: []
+  # https://github.com/modelcontextprotocol/servers/blob/main/src/slack
+#  slack:
+#    type: stdio
+#    command: /usr/local/bin/mcp-server-slack
+#    env:
+#      SLACK_BOT_TOKEN: "xoxb-your-bot-token"
+#      SLACK_TEAM_ID: "T01234567"
+  # https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite
+#  sqlite:
+#    type: stdio
+#    command: uvx
+#    args:
+#      - mcp-server-sqlite
+#      - --db-path
+#      - /shared/test.db
+  # https://github.com/modelcontextprotocol/servers/blob/main/src/time
+  # time:
+
+# fileConfig:
+#   endpoints:
+#     assistants:
+#       fileLimit: 5
+#       fileSizeLimit: 10  # Maximum size for an individual file in MB
+#       totalSizeLimit: 50  # Maximum total size for all files in a single request in MB
+#       supportedMimeTypes:
+#         - "image/.*"
+#         - "application/pdf"
+#     openAI:
+#       disabled: true  # Disables file uploading to the OpenAI endpoint
+#     default:
+#       totalSizeLimit: 20
+#     YourCustomEndpointName:
+#       fileLimit: 2
+#       fileSizeLimit: 5
+#   serverFileSizeLimit: 100  # Global server file size limit in MB
+#   avatarSizeLimit: 2  # Limit for user avatar image size in MB
+# See the Custom Configuration Guide for more information on Assistants Config:
+# https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/assistants_endpoint
