@@ -5,7 +5,7 @@ USER root
 RUN apk add --no-cache python3 py3-pip git chromium uv
 
 RUN pip3 install --no-cache-dir \
-    --break-system-packages --root-user-action \
+    --break-system-packages --root-user-action ignore \
     mcp-server-fetch \
     mcp-server-git \
     mcp-server-sqlite
