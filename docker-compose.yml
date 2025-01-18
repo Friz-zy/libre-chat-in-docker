@@ -29,7 +29,7 @@ services:
 
   mongodb:
     container_name: mongodb
-    image: mongo
+    image: docker.io/mongo
     restart: always
     user: "${UID}:${GID}"
     volumes:
@@ -38,7 +38,7 @@ services:
 
   meilisearch:
     container_name: meilisearch
-    image: getmeili/meilisearch:v1.7.3
+    image: docker.io/getmeili/meilisearch:v1.7.3
     restart: always
     user: "${UID}:${GID}"
     environment:
@@ -49,7 +49,7 @@ services:
 
   vectordb:
     container_name: vectordb
-    image: ankane/pgvector:latest
+    image: docker.io/ankane/pgvector:latest
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
@@ -71,7 +71,7 @@ services:
       - .env
 
   ollama:
-    image: ollama/ollama
+    image: docker.io/ollama/ollama
     container_name: ollama
     environment:
       OLLAMA_ORIGINS: '*'
@@ -80,3 +80,11 @@ services:
       - './data/ollama:/root/.ollama'
     # privileged: true # for GPU
     restart: always
+
+  mcp-inspector:
+    image: docker.io/mcp/inspector
+    container_name: mcp-inspector
+    restart: always
+    # ports:
+    #   - 3000:3000
+    #   - 5173:5173
