@@ -1,5 +1,9 @@
+x-service-defaults: &service-defaults
+  restart: always
+
 services:
   librechat:
+    <<: *service-defaults
     container_name: librechat
     ports:
       - "${PORT}:${PORT}"
@@ -9,7 +13,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
     user: "${UID}:${GID}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -28,18 +31,18 @@ services:
       - .env
 
   mongodb:
+    <<: *service-defaults
     container_name: mongodb
     image: docker.io/mongo
-    restart: always
     user: "${UID}:${GID}"
     volumes:
       - ./data/mongodb:/data/db
     command: mongod --noauth
 
   meilisearch:
+    <<: *service-defaults
     container_name: meilisearch
     image: docker.io/getmeili/meilisearch:v1.7.3
-    restart: always
     user: "${UID}:${GID}"
     environment:
       - MEILI_HOST=http://meilisearch:7700
@@ -47,30 +50,33 @@ services:
     volumes:
       - ./data/meilisearch:/meili_data
 
+
   vectordb:
+    <<: *service-defaults
     container_name: vectordb
     image: docker.io/ankane/pgvector:latest
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-    restart: always
     volumes:
       - ./data/vectordb:/var/lib/postgresql/data
 
+
   rag_api:
+    <<: *service-defaults
     container_name: rag_api
     image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
     environment:
       - DB_HOST=vectordb
       - RAG_PORT=${RAG_PORT:-8000}
-    restart: always
     depends_on:
       - vectordb
     env_file:
       - .env
 
   ollama:
+    <<: *service-defaults
     image: docker.io/ollama/ollama
     container_name: ollama
     environment:
@@ -79,12 +85,11 @@ services:
     volumes:
       - './data/ollama:/root/.ollama'
     # privileged: true # for GPU
-    restart: always
 
   mcp-inspector:
+    <<: *service-defaults
     image: docker.io/mcp/inspector
     container_name: mcp-inspector
-    restart: always
     # ports:
     #   - 3000:3000
     #   - 5173:5173

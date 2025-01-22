@@ -1,0 +1,83 @@
+networks:
+  librechat:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.200.0.0/24
+         gateway: 10.200.0.1
+
+x-service-defaults: &service-defaults
+  restart: always
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+    - "mongodb:10.200.0.3"
+    - "meilisearch:10.200.0.4"
+    - "vectordb:10.200.0.5"
+    - "rag_api:10.200.0.6"
+    - "ollama:10.200.0.7"
+    - "mcp-inspector:10.200.0.8"
+
+services:
+  librechat:
+    <<: *service-defaults
+    volumes:
+      - ./librechat.yaml:/app/librechat.yaml
+      - ./data/images:/app/client/public/images
+      - ./data/logs:/app/api/logs
+      - ./shared:/shared
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.2
+
+  mongodb:
+    <<: *service-defaults
+    volumes:
+      - ./data/mongodb:/data/db
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.3
+
+  meilisearch:
+    <<: *service-defaults
+    volumes:
+      - ./data/meilisearch:/meili_data
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.4
+
+  vectordb:
+    <<: *service-defaults
+    volumes:
+      - ./data/vectordb:/var/lib/postgresql/data
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.5
+
+  rag_api:
+    <<: *service-defaults
+    volumes:
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.6
+
+  ollama:
+    <<: *service-defaults
+    volumes:
+      - './data/ollama:/root/.ollama'
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.7
+
+  mcp-inspector:
+    <<: *service-defaults
+    volumes:
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      librechat:
+        ipv4_address: 10.200.0.8
